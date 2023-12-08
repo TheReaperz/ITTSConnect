@@ -5,8 +5,6 @@ import SplashScreen from '../screens/SplashScreen.js';
 import LoginScreen from '../screens/LoginScreen.js';
 import LoginCompanyScreen from '../screens/LoginCompanyScreen.js';
 import GetStartedScreen from '../screens/GetStartedScreen';
-import UserProfile from '../screens/userprofile.js';
-import HomeUserScreen from '../screens/HomeUser.js';
 
 const Stack = createNativeStackNavigator();
 
