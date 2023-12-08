@@ -3,6 +3,7 @@ import { ScrollView, View } from "react-native";
 import ProfileBox from "../components/profilebox";
 import FormInput from "../components/company_profileforminput";
 import TabsNavigation from "../components/TabsNavigation";
+import { useAuth } from "../context/auth";
 import {
   Button,
   VStack,
@@ -11,6 +12,13 @@ import {
 } from "native-base";
 
 const CompanyProfile = ({ navigation }) => {
+
+  const { user, signOut } = useAuth()
+  
+  const handleLogout = async () => {
+    await signOut()
+  }
+
   return (
     <View style={{ flex: 1 }} backgroundColor="white">
       <ScrollView>
@@ -19,7 +27,7 @@ const CompanyProfile = ({ navigation }) => {
           subtitle="Surabaya, Indonesia"
           avatarSource={require("../assets/telkomsigma.png")}
           onPressChangeImage={() => console.log("ChangeImage")}
-          onPressLogout={() => console.log("Logout")}
+          onPressLogout={handleLogout}
         />
 
         <Box paddingTop="4">

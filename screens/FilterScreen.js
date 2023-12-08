@@ -39,7 +39,7 @@ const FilterScreen = ({ navigation }) => {
             >
               <Text bold color={"white"}>APPLY FILTER</Text>
             </Button>
-            <TabsNavigation />
+            <TabsNavigation navigation={navigation}/>
         </View>
     );
 };

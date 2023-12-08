@@ -3,16 +3,16 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { Image } from 'react-native';
 
-const TabsNavigation = () => {
+const TabsNavigation = ({ navigation }) => {
     return (
         <View style={styles.container} >
-            <TouchableOpacity style={styles.tab}>
+            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate('SearchScreen')} >
                 <Image source={require('../assets/Icons/search.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tab}>
+            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate('HomeUserScreen')}>
                 <Image source={require('../assets/Icons/home.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tab}>
+            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate('UserProfile')}>
                 <Image source={require('../assets/Icons/profile.png')} />
             </TouchableOpacity>
         </View>

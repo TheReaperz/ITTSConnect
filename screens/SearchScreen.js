@@ -23,7 +23,7 @@ const SearchScreen = ({ navigation }) => {
                 <JobsCard />
                 <JobsCard />
             </ScrollView>
-            <TabsNavigation />
+            <TabsNavigation navigation={navigation} />
         </View>
     );
 };

@@ -21,7 +21,7 @@ const SearchBar = ({ term, onTermChange, onTermSubmit, navigation }) => {
                 />
             </View>
             <TouchableOpacity style={styles.filterButtonContainer} 
-                onPress={() => navigation.navigate('Filter')} >
+                onPress={() => navigation.navigate('FilterScreen')} >
                 <Image source={filterIcon} style={styles.filterButtonIcon} />
             </TouchableOpacity>
         </View>

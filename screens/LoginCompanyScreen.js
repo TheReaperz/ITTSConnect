@@ -1,33 +1,20 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import { FormControl, Input, Heading, Text, Button, Center, Box, Link } from 'native-base';
 import { db } from '../firebase';
 import { collection, where, query, getDocs } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import md5 from 'crypto-js/md5';
-import { useAuth } from '../context/auth';
 
 const LoginScreen = ({ navigation }) => {
-  const { signIn } = useAuth()
-  const [email, setEmail] = useState('bintangsatrio5@gmail.com');
-  const [password, setPassword] = useState('12345');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isInvalid, setIsInvalid] = useState(false);
 
   const handleLogin = async () => {
     try {
-      const hashedPassword = md5(password).toString();
-
-      const userQuery = query(
-        collection(db, 'users'),
-        where('email', '==', email),
-        where('password', '==', hashedPassword)
-      );
-
+      const userQuery = query(collection(db, 'users'), where('email', '==', email), where('password', '==', password));
       const userDocs = await getDocs(userQuery);
-
       if (userDocs.docs.length === 1) {
-        const user = userDocs.docs[0].data()
-        await signIn(user);
+        navigation.navigate('SearchScreen');
       } else {
         setIsInvalid(true);
       }
@@ -40,10 +27,10 @@ const LoginScreen = ({ navigation }) => {
     <View>
       <Center>
         <Heading paddingTop="100">Login to Your Account!</Heading>
-        <Text fontSize="xs">Mahasiswa</Text>
+        <Text fontSize="xs">Company</Text>
 
         <FormControl isRequired paddingTop="90" paddingX="10" isInvalid={isInvalid}>
-          <FormControl.Label>Email Address</FormControl.Label>
+          <FormControl.Label>Company Email Address</FormControl.Label>
           <Input
             p={2}
             placeholder="Email"
@@ -75,11 +62,11 @@ const LoginScreen = ({ navigation }) => {
           </Button>
         </FormControl>
         <Box alignItems="center" paddingTop="210">
-          <Text mx="16"> Log In to My Account</Text>
+          <Text mx="16"> Log In As Company</Text>
           <Text mx="16">
-            Company account?{' '}
+            Regular User?{' '}
             <Link
-              onPress={() => navigation.navigate('LoginCompany')}
+              onPress={() => navigation.navigate('Login')}
               isExternal
               _text={{
                 color: 'red.400',
@@ -89,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
                 mb: -2,
               }}
             >
-              Sign In As Company
+              Sign In As User
             </Link>
           </Text>
         </Box>
