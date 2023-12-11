@@ -4,7 +4,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate('GetStarted');
+      navigation.navigate('Login');
     }, 3000);
   }, []);
 

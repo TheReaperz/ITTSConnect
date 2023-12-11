@@ -4,7 +4,6 @@ import { NativeBaseProvider } from 'native-base';
 import SplashScreen from '../screens/SplashScreen.js';
 import LoginScreen from '../screens/LoginScreen.js';
 import LoginCompanyScreen from '../screens/LoginCompanyScreen.js';
-import GetStartedScreen from '../screens/GetStartedScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +13,6 @@ const AuthNavigator = () => {
             <NavigationContainer>
                 <Stack.Navigator initialRouteName="Splash">
                     <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="GetStarted" component={GetStartedScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="LoginCompany" component={LoginCompanyScreen} options={{ headerShown: false }} />
                 </Stack.Navigator>

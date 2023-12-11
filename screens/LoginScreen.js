@@ -27,6 +27,7 @@ const LoginScreen = ({ navigation }) => {
 
       if (userDocs.docs.length === 1) {
         const user = userDocs.docs[0].data()
+        console.log(user)
         await signIn(user);
       } else {
         setIsInvalid(true);
@@ -39,8 +40,8 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View>
       <Center>
-        <Heading paddingTop="100">Login to Your Account!</Heading>
-        <Text fontSize="xs">Mahasiswa</Text>
+        <Heading paddingTop="100">ITTS Career Connect</Heading>
+        <Text fontSize="xs">Login</Text>
 
         <FormControl isRequired paddingTop="90" paddingX="10" isInvalid={isInvalid}>
           <FormControl.Label>Email Address</FormControl.Label>
@@ -76,22 +77,6 @@ const LoginScreen = ({ navigation }) => {
         </FormControl>
         <Box alignItems="center" paddingTop="210">
           <Text mx="16"> Log In to My Account</Text>
-          <Text mx="16">
-            Company account?{' '}
-            <Link
-              onPress={() => navigation.navigate('LoginCompany')}
-              isExternal
-              _text={{
-                color: 'red.400',
-              }}
-              mt={-0.5}
-              _web={{
-                mb: -2,
-              }}
-            >
-              Sign In As Company
-            </Link>
-          </Text>
         </Box>
       </Center>
     </View>

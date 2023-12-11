@@ -31,6 +31,7 @@ const ProfileBox = ({ title, subtitle, location, avatarSource, onPressChangeImag
             variant="solid"
             size="xs"
             borderRadius={6}
+            mx={-3}
             colorScheme={"light"}
             bgColor={"#fca5a5"}
             onPress={onPressLogout}
