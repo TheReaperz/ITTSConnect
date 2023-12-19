@@ -3,10 +3,31 @@ import { Heading, Container } from 'native-base';
 import TabsNavigation from '../components/TabsNavigation';
 import JobsCard from '../components/JobsCard';
 import SearchBar from '../components/SearchBar';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
 import { ScrollView } from 'react-native';
 
 const SearchScreen = ({ navigation }) => {
+
+    const [jobs, setJobs] = useState([]);
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "jobs"));
+                const jobsArray = [];
+                querySnapshot.forEach((doc) => {
+                    jobsArray.push({ id: doc.id, ...doc.data() });
+                });
+                setJobs(jobsArray);
+            } catch (error) {
+                console.error("Error fetching jobs: ", error);
+            }
+        };
+
+        fetchJobs();
+    }, []);
     return (
         <View style={{ flex: 1 }}>
             <Container paddingTop={60}>
@@ -15,13 +36,9 @@ const SearchScreen = ({ navigation }) => {
             </Container>
             <SearchBar navigation={navigation} />
             <ScrollView style={{ flex: 1 }} >
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
+                    {jobs.map(job => (
+                        <JobsCard key={job.id} job={job} />
+                    ))}
             </ScrollView>
             <TabsNavigation navigation={navigation} />
         </View>
