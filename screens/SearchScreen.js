@@ -37,7 +37,7 @@ const SearchScreen = ({ navigation }) => {
             <SearchBar navigation={navigation} />
             <ScrollView style={{ flex: 1 }} >
                     {jobs.map(job => (
-                        <JobsCard key={job.id} job={job} />
+                        <JobsCard key={job.id} job={job} navigation={navigation} />
                     ))}
             </ScrollView>
             <TabsNavigation navigation={navigation} />

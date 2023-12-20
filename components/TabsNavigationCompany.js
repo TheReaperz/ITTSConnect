@@ -9,10 +9,10 @@ const TabsNavigationCompany= ({navigation}) => {
             <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("AddJobScreen")}>
                 <Image source={require('../assets/Icons/add.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tab}>
+            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("HomeCompanyScreen")}>
                 <Image source={require('../assets/Icons/home.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("HomeUserScreen")} >
+            <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("CompanyProfile")} >
                 <Image source={require('../assets/Icons/profile.png')} />
             </TouchableOpacity>
         </View>

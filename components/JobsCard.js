@@ -42,11 +42,12 @@ const JobsCard = ({ job, navigation }) => {
                                         </Box>
                                         <Box w="full" mt={2}>
                                                     <HStack space={1} maxWidth={80}>
-                                                    {job.requirement.map((req, index) => (
-                                                        <Badge key={index} bg={'#D9D9D9'} rounded={10} variant={'solid'} alignSelf="center">
-                                                    <Text bold bg={'#D9D9D9'} fontSize="2xs">{req}</Text>
-                                                </Badge>
-                                            ))}
+                                                        <Badge key={job.experience} bg={'#D9D9D9'} rounded={10} variant={'solid'} alignSelf="center">
+                                                            <Text bold bg={'#D9D9D9'} fontSize="2xs">{job.experience}</Text>
+                                                        </Badge>
+                                                        <Badge key={job.jobType} bg={'#D9D9D9'} rounded={10} variant={'solid'} alignSelf="center">
+                                                            <Text bold bg={'#D9D9D9'} fontSize="2xs">{job.jobType}</Text>
+                                                        </Badge>
                                                     </HStack>
                                         </Box>
                                         <Box w="full" mt={4}>
