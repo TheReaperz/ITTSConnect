@@ -3,11 +3,34 @@ import { Heading, Container, HStack, Avatar, Center } from 'native-base';
 import TabsNavigation from '../components/TabsNavigation';
 import JobsCard from '../components/JobsCard';
 import { useAuth } from "../context/auth";
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+
 
 import { ScrollView } from 'react-native';
 
 const HomeUserScreen = ({ navigation }) => {
     const { user } = useAuth();
+    const [jobs, setJobs] = useState([]);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "jobs"));
+                const jobsArray = [];
+                querySnapshot.forEach((doc) => {
+                    jobsArray.push({ id: doc.id, ...doc.data() });
+                });
+                setJobs(jobsArray);
+            } catch (error) {
+                console.error("Error fetching jobs: ", error);
+            }
+        };
+
+        fetchJobs();
+    }, []);
+
     return (
         <View style={{ flex: 1 }}>
             <HStack space="2" alignItems="center" pt={3}>
@@ -29,13 +52,9 @@ const HomeUserScreen = ({ navigation }) => {
                 </Container>
             </HStack>
             <ScrollView style={{ flex: 1 }} >
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
-                <JobsCard />
+                    {jobs.map(job => (
+                        <JobsCard key={job.id} job={job} navigation={navigation}/>
+                    ))}
             </ScrollView>
             <TabsNavigation navigation={navigation}/>
         </View>

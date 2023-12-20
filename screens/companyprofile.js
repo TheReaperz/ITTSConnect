@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import ProfileBox from "../components/profilebox";
 import FormInput from "../components/company_profileforminput";
-import TabsNavigation from "../components/TabsNavigation";
+import TabsNavigationCompany from "../components/TabsNavigationCompany";
 import { useAuth } from "../context/auth";
 import {
   Button,
@@ -23,9 +23,9 @@ const CompanyProfile = ({ navigation }) => {
     <View style={{ flex: 1 }} backgroundColor="white">
       <ScrollView>
       <ProfileBox
-          title="Telkom Sigma"
-          subtitle="Surabaya, Indonesia"
-          avatarSource={require("../assets/telkomsigma.png")}
+          title={user.fullName}
+          subtitle={user.location}
+          avatarSource={{uri: user.companyImage}}
           onPressChangeImage={() => console.log("ChangeImage")}
           onPressLogout={handleLogout}
         />
@@ -62,7 +62,7 @@ const CompanyProfile = ({ navigation }) => {
           </Button>
         </HStack>
       </ScrollView>
-      <TabsNavigation />
+      <TabsNavigationCompany navigation={navigation} />
     </View>
   );
 };

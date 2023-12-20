@@ -15,7 +15,7 @@ const JobDetailHeader = ({ title, company, location, date, avatarSource }) => {
           </Text>
           <HStack space={3}>
             <Text fontSize="md" color="white">
-              {company}
+             • {company}
             </Text>
             <Text fontSize="md" color="white">
               • {location}
