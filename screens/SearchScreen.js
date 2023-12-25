@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet, Image, TouchableOpacity, Modal } from 'react-native';
-import { Heading, Container } from 'native-base';
+import { Heading, Container, Text } from 'native-base';
 import TabsNavigation from '../components/TabsNavigation';
 import JobsCard from '../components/JobsCard';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,8 @@ import { ScrollView } from 'react-native';
 
 const SearchScreen = ({ navigation }) => {
     const [jobs, setJobs] = useState([]);
+    const [isJobsFound, setIsJobsFound] = useState(true);
+
     const [filters, setFilters] = useState({ jobTypes: [], experience: null });
 
     const areFiltersApplied = () => {
@@ -54,10 +56,14 @@ const SearchScreen = ({ navigation }) => {
                 querySnapshot.forEach((doc) => {
                     jobsArray.push({ id: doc.id, ...doc.data() });
                 });
+
                 setJobs(jobsArray);
+                setIsJobsFound(jobsArray.length > 0); // Set based on jobs array length
 
             } catch (error) {
+
                 console.error("Error fetching jobs: ", error);
+                setIsJobsFound(false); // Set to false if there's an error
             }
         };
     
@@ -109,9 +115,15 @@ const SearchScreen = ({ navigation }) => {
 
                 </View>
             <ScrollView style={{ flex: 1 }} >
-                    {jobs.map(job => (
-                        <JobsCard key={job.id} job={job} navigation={navigation} />
-                    ))}
+                    {isJobsFound ? (
+                        jobs.map(job => (
+                            <JobsCard key={job.id} job={job} navigation={navigation} />
+                        ))
+                    ) : (
+                        <View style={styles.noJobsContainer}>
+                            <Text>No jobs currently exist with that criteria</Text>
+                        </View>
+                    )}
             </ScrollView>
             <TabsNavigation navigation={navigation} />
         </View>
@@ -167,5 +179,12 @@ const styles = StyleSheet.create({
     filterButtonIcon: {
         width: 17,
         height: 17,
+    },
+
+    noJobsContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
     },
 });
