@@ -33,12 +33,12 @@ const UserProfile = ({ navigation }) => {
         let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
         const querySnapshot = await getDocs(userQuery);
         if (!querySnapshot.empty) {
-          const docSnapshot = querySnapshot.docs[0]; // Correctly declared inside the try block
+          const docSnapshot = querySnapshot.docs[0]; 
           const fetchedUserData = docSnapshot.data();
-          const documentId = docSnapshot.id; // Fetching the document ID
+          const documentId = docSnapshot.id; 
     
           setUserData(fetchedUserData);
-          setDocumentId(documentId); // Assuming you have a state to store this ID
+          setDocumentId(documentId); 
           setSkills(fetchedUserData.skill || []);
         } else {
           console.log("User not found");
@@ -51,7 +51,7 @@ const UserProfile = ({ navigation }) => {
     if (user && user.id) {
       fetchUserProfile();
     }
-  }, [user]); // Dependency array includes 'user' to re-run the effect when 'user' changes
+  }, [user]);
   
 
   const [skills, setSkills] = useState([]);
@@ -114,18 +114,15 @@ const UserProfile = ({ navigation }) => {
 
   const updateUserProfileImage = async (url) => {
     try {
-      const userRef = doc(db, 'users', documentId); // Assuming documentId is correct
+      const userRef = doc(db, 'users', documentId); 
       await updateDoc(userRef, {
         profilePicture: url
       });
       alert("Profile image updated successfully");
-      // Update userData state if needed
     } catch (error) {
       console.error("Error updating profile image: ", error);
     }
   };
-  
-  
   
   const uploadImageToFirebase = async (uri) => {
     const response = await fetch(uri);
@@ -149,7 +146,7 @@ const UserProfile = ({ navigation }) => {
     if (!areFieldsValid()) return;
 
     try {
-      const userRef = doc(db, 'users', documentId); // Make sure user.id is the correct identifier
+      const userRef = doc(db, 'users', documentId);
       await updateDoc(userRef, {
         skill: skills.filter(r => r && typeof r === 'string'),
         fullName: userData.fullName,
