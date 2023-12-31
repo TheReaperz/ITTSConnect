@@ -92,7 +92,7 @@ const HomeCompanyScreen = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1 }}>
-            <HStack  space="5" alignItems="center">
+            <HStack mt={8}  space="5" alignItems="center">
                 <Container  my={5} mx={3}>
                 <Heading px={30} >Hello</Heading>
                 <Heading px={30}>{user.fullName}</Heading>
