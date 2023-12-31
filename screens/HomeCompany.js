@@ -92,14 +92,14 @@ const HomeCompanyScreen = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1 }}>
-            <HStack mt={8}  space="5" alignItems="center">
-                <Container  my={5} mx={3}>
-                <Heading px={30} >Hello</Heading>
-                <Heading px={30}>{user.fullName}</Heading>
+            <HStack space="2" alignItems="center" pt={3}>
+                <Container size="16" my={7} mx={3} flex={1}> 
+                  <Heading px={30} >Hello</Heading>
+                  <Heading px={30}>{user.fullName}</Heading>
                 </Container>
-                <Container size="20">
-                <Avatar bg="green.500" size={70} borderRadius={100} source={{uri: user.companyImage}}>
-                </Avatar>
+                <Container flex={1}>
+                  <Avatar bg="green.500" size={90} borderRadius={100} source={{uri: userData.profilePicture}} mx={10} >
+                  </Avatar>
                 </Container>
             </HStack>
             <Container>
