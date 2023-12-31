@@ -84,6 +84,10 @@ const UserProfile = ({ navigation }) => {
   const handleEducationChange = (text) => {
     setUserData({ ...userData, education: text });
   };
+
+  const handleDateOfBirthChange = (text) => {
+    setUserData({ ...userData, dateOfBirth: text });
+  };
   
   const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -147,7 +151,7 @@ const UserProfile = ({ navigation }) => {
       const userRef = doc(db, 'users', documentId);
       await updateDoc(userRef, {
         skill: skills.filter(r => r && typeof r === 'string'),
-        fullName: userData.fullName,
+        dateOfBirth: userData.dateOfBirth,
         phoneNumber: userData.phoneNumber,
         location: userData.location,
         aboutMe: userData.aboutMe,
@@ -169,7 +173,7 @@ const UserProfile = ({ navigation }) => {
   };
 
   const areFieldsValid = () => {
-    if (!userData.fullName || !userData.dateOfBirth || !userData.email || !userData.phoneNumber || !userData.location) {
+    if (!userData.phoneNumber || !userData.location || !userData.dateOfBirth) {
       alert('Please fill in all required fields.');
       return false;
     }
@@ -192,8 +196,8 @@ const UserProfile = ({ navigation }) => {
     <View style={{ flex: 1 }} backgroundColor="white">
       <ScrollView>
       <ProfileBox
-        title={user.fullName}
-        subtitle={user.location}
+        title={userData.fullName}
+        subtitle={userData.location}
         avatarSource={{uri: userData.profilePicture}}
         onPressChangeImage={selectImage}
         onPressLogout={handleLogout}
@@ -211,7 +215,7 @@ const UserProfile = ({ navigation }) => {
                 <Text fontSize="md" bold>
                 Date of Birth
                 </Text>
-              <Input variant="outline" placeholder="Enter date of birth" value={userData.dateOfBirth}/>
+              <Input variant="outline" placeholder="Enter date of birth" value={userData.dateOfBirth} onChangeText={handleDateOfBirthChange}/>
             </VStack>
             <VStack space={3}>
                 <Text fontSize="md" bold>
