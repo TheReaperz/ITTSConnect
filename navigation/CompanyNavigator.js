@@ -5,6 +5,7 @@ import CompanyProfile from '../screens/companyprofile.js';
 import AfterAddScreen from '../screens/After_add.js';
 import AddJobScreen from '../screens/AddJob.js';
 import HomeCompanyScreen from '../screens/HomeCompany.js';
+import JobDetail from '../screens/jobdetail.js';
 
 const Stack = createNativeStackNavigator();
 

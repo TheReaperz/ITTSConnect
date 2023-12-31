@@ -4,7 +4,7 @@ import TabsNavigation from '../components/TabsNavigation';
 import JobsCard from '../components/JobsCard';
 import { useAuth } from "../context/auth";
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where, } from 'firebase/firestore';
 import { db } from '../firebase';
 
 
@@ -13,6 +13,30 @@ import { ScrollView } from 'react-native';
 const HomeUserScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [jobs, setJobs] = useState([]);
+    const [userData, setUserData] = useState({user});
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+          try {
+            let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
+            const querySnapshot = await getDocs(userQuery);
+            if (!querySnapshot.empty) {
+              const docSnapshot = querySnapshot.docs[0]; // Correctly declared inside the try block
+              const fetchedUserData = docSnapshot.data();
+        
+              setUserData(fetchedUserData);
+            } else {
+              console.log("User not found");
+            }
+          } catch (error) {
+            console.error("Error fetching user profile: ", error);
+          }
+        };    
+      
+        if (user && user.id) {
+          fetchUserProfile();
+        }
+      }, [user]);
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -43,9 +67,7 @@ const HomeUserScreen = ({ navigation }) => {
                         bg="green.500"
                         size={90}
                         borderRadius={100}
-                        source={{
-                            uri: user.profilePicture
-                        }}
+                        source={{uri: userData.profilePicture}}
                     >
                         AJ
                     </Avatar>

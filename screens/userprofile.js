@@ -1,7 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
-import { ScrollView, View, } from "react-native";
+import { ScrollView, View, Alert } from "react-native";
 import ProfileBox from "../components/profilebox";
-import { Input } from "native-base";
+import { Input, Toast } from "native-base";
+import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
+import { db, app } from '../firebase';
 import {
   Text,
   Button,
@@ -11,28 +15,189 @@ import {
   TextArea,
   Center,
   Image,
-  Badge,
 } from "native-base";
 import TabsNavigation from "../components/TabsNavigation";
 import { useAuth } from "../context/auth";
 
 const UserProfile = ({ navigation }) => {
   const { user, signOut } = useAuth();
- 
   const handleLogout = async () => {
     await signOut();
   };
+  const [userData, setUserData] = useState({user});
+  const [documentId, setDocumentId] = useState(null);
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
+        const querySnapshot = await getDocs(userQuery);
+        if (!querySnapshot.empty) {
+          const docSnapshot = querySnapshot.docs[0]; 
+          const fetchedUserData = docSnapshot.data();
+          const documentId = docSnapshot.id; 
+    
+          setUserData(fetchedUserData);
+          setDocumentId(documentId); 
+          setSkills(fetchedUserData.skill || []);
+        } else {
+          console.log("User not found");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile: ", error);
+      }
+    };    
+  
+    if (user && user.id) {
+      fetchUserProfile();
+    }
+  }, [user]);
+  
+
+  const [skills, setSkills] = useState([]);
+  const handleSkillChange = (text, index) => {
+    const newSkills = [...skills];
+    newSkills[index] = text;
+    setSkills(newSkills);
+  };
+  const addSkillInput = () => {
+    setSkills([...skills, ""]); 
+  };
+  
+  const deleteSkill = (index) => {
+    const newSkills = skills.filter((_, i) => i !== index);
+    setSkills(newSkills);
+  };
+
+  const handleLocationChange = (text) => {
+    setUserData({ ...userData, location: text });
+  };
+
+  const handlePhoneNumberChange = (text) => {
+    setUserData({ ...userData, phoneNumber: text });
+  };
+
+  const handleAboutMeChange = (text) => {
+    setUserData(prevState => ({ ...prevState, aboutMe: text }));
+  };  
+  
+  const handleEducationChange = (text) => {
+    setUserData({ ...userData, education: text });
+  };
+  
+  const selectImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.canceled && result.assets) {
+      const uri = result.assets[0].uri;
+      uploadImageToFirebase(uri);
+    }
+  };
+  
+  
+  const getPermissionAsync = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need Gallery Access for uploading images!');
+    }
+  };
+  
+  useEffect(() => {
+    getPermissionAsync();
+  }, []);
+  
+
+  const updateUserProfileImage = async (url) => {
+    try {
+      const userRef = doc(db, 'users', documentId); 
+      await updateDoc(userRef, {
+        profilePicture: url
+      });
+      alert("Profile image updated successfully");
+    } catch (error) {
+      console.error("Error updating profile image: ", error);
+    }
+  };
+  
+  const uploadImageToFirebase = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const storage = getStorage(app);
+    const storageRef = ref(storage, `assets/userProfile/${filename}`);
+  
+    try {
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      updateUserProfileImage(downloadURL);
+    } catch (error) {
+      console.error("Error uploading image to Firebase: ", error);
+    }
+  };
+
+  const updateUserProfile = async () => {
+    if (!areFieldsValid()) return;
+
+    try {
+      const userRef = doc(db, 'users', documentId);
+      await updateDoc(userRef, {
+        skill: skills.filter(r => r && typeof r === 'string'),
+        fullName: userData.fullName,
+        phoneNumber: userData.phoneNumber,
+        location: userData.location,
+        aboutMe: userData.aboutMe,
+        education: userData.education,
+      });
+      Toast.show({
+        title: "Profile updated successfully",
+        status: "success",
+        duration: 2000
+      });
+    } catch (error) {
+      console.error("Error updating profile: ", error);
+      Toast.show({
+        title: "Error updating profile",
+        status: "error",
+        duration: 2000
+      });
+    }
+  };
+
+  const areFieldsValid = () => {
+    if (!userData.fullName || !userData.dateOfBirth || !userData.email || !userData.phoneNumber || !userData.location) {
+      alert('Please fill in all required fields.');
+      return false;
+    }
+    return true;
+  };
+
+  const confirmUpdate = () => {
+    Alert.alert(
+      "Confirm Update",
+      "Are you sure you want to update your profile?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => updateUserProfile() }
+      ]
+    );
+  };
+
+  
   return (
     <View style={{ flex: 1 }} backgroundColor="white">
       <ScrollView>
-        <ProfileBox
-          title={user.fullName}
-          subtitle={user.location}
-            avatarSource={{uri: user.profilePicture}}
-          onPressChangeImage={() => console.log("ChangeImage")}
-          onPressLogout={handleLogout}
-        />
+      <ProfileBox
+        title={user.fullName}
+        subtitle={user.location}
+        avatarSource={{uri: userData.profilePicture}}
+        onPressChangeImage={selectImage}
+        onPressLogout={handleLogout}
+      />
 
         <Box paddingTop="4">
           <VStack space="2" px={6}>
@@ -40,31 +205,31 @@ const UserProfile = ({ navigation }) => {
                 <Text fontSize="md" bold>
                   Full Name
                 </Text>
-              <Input variant="outline" placeholder="Enter a full name" value={user.fullName}/>
+              <Input variant="outline" placeholder="Enter a full name" value={userData.fullName} editable={false}/>
             </VStack>
             <VStack space={3}>
                 <Text fontSize="md" bold>
                 Date of Birth
                 </Text>
-              <Input variant="outline" placeholder="Enter date of birth" value={user.dateOfBirth}/>
+              <Input variant="outline" placeholder="Enter date of birth" value={userData.dateOfBirth}/>
             </VStack>
             <VStack space={3}>
                 <Text fontSize="md" bold>
                 Email Address
                 </Text>
-              <Input variant="outline" placeholder="Enter email address" value={user.email}/>
+              <Input variant="outline" placeholder="Enter email address" value={userData.email}/>
             </VStack>
             <VStack space={3}>
                 <Text fontSize="md" bold>
                 Phone Number
                 </Text>
-              <Input variant="outline" placeholder="Enter phone number" value={user.phoneNumber}/>
+              <Input variant="outline" placeholder="Enter phone number" value={userData.phoneNumber} onChangeText={handlePhoneNumberChange}/>
             </VStack>
             <VStack space={3}>
                 <Text fontSize="md" bold>
                 Location
                 </Text>
-              <Input variant="outline" placeholder="Enter location" value={user.location}/>
+              <Input variant="outline" placeholder="Enter location" value={userData.location} onChangeText={handleLocationChange}/>
             </VStack>
 
             <HStack>
@@ -77,18 +242,12 @@ const UserProfile = ({ navigation }) => {
                 About Me
               </Text>
             </HStack>
-            <TextArea placeholder="About Me"></TextArea>
-            <HStack>
-              <Image
-                source={require("../assets/Icons/education.png")}
-                alt="Alternate Text"
-                size={6}
+            <TextArea
+                placeholder="About Me"
+                value={userData.aboutMe || ''}
+                onChangeText={handleAboutMeChange}
               />
-              <Text fontSize="md" bold px={2}>
-                Education
-              </Text>
-            </HStack>
-            <TextArea placeholder="Level of Education"></TextArea>
+
             {/* Skill */}
             <HStack>
               <Image
@@ -97,107 +256,70 @@ const UserProfile = ({ navigation }) => {
                 size={6}
               />
               <Text fontSize="md" bold px={2}>
-                Skill
+                Skills
               </Text>
             </HStack>
             <Box py={3} borderTopColor="#d4d4d4" borderTopWidth={1}>
               <Center>
-                <HStack space={3} py={3}>
-                  <Badge
-                    bg={"#EAEAEA"}
-                    rounded={10}
-                    variant={"solid"}
-                    size="10"
-                  >
-                    <Text fontSize="md" onPress={() => console.log("Teamwork")}>
-                      Teamwork
-                    </Text>
-                  </Badge>
-                  <Badge bg={"#EAEAEA"} rounded={10} variant={"solid"} size="">
-                    <Text
-                      fontSize="md"
-                      onPress={() => console.log("Leadership")}
+              {skills.map((skill, index) => (
+                  <HStack key={index} width="100%" space={2} alignItems="center">
+                    <Input
+                      flex={1}
+                      mx={3}
+                      placeholder={`Skill ${index + 1}`}
+                      value={skill}
+                      onChangeText={text => handleSkillChange(text, index)}
+                    />
+                    <Button
+                      colorScheme="danger"
+                      onPress={() => deleteSkill(index)}
                     >
-                      Leadership
-                    </Text>
-                  </Badge>
-                  <Badge bg={"#EAEAEA"} rounded={10} variant={"solid"} size="">
-                    <Text
-                      fontSize="md"
-                      onPress={() => console.log("Target oriented")}
-                    >
-                      Target oriented
-                    </Text>
-                  </Badge>
-                </HStack>
-                <HStack space={2} py={3}>
-                  <Badge bg={"#EAEAEA"} rounded={10} variant={"solid"}>
-                    <Text
-                      fontSize="md"
-                      onPress={() => console.log("Consistent")}
-                    >
-                      Consistent
-                    </Text>
-                  </Badge>
-                  <Badge bg={"#EAEAEA"} rounded={10} variant={"solid"} size="">
-                    <Text fontSize="md" onPress={() => console.log("Visioner")}>
-                      Visioner
-                    </Text>
-                  </Badge>
-                  <Badge
-                    bg={"#EAEAEA"}
-                    rounded={10}
-                    variant={"solid"}
-                    size="md"
-                  >
-                    <Text
-                      fontSize="md"
-                      onPress={() => console.log("Good Communication")}
-                    >
-                      Good Communication
-                    </Text>
-                  </Badge>
-                </HStack>
-                <Text color="lightBlue.700" paddingTop={5}>
-                  See More
-                </Text>
+                      Delete
+                    </Button>
+                  </HStack>
+                ))}
+
+                {skills.length < 5 && (
+                  <Button marginTop={3} marginLeft={3} center maxWidth="320" colorScheme="danger" onPress={addSkillInput}>
+                    <Text color="white">Add Another Skill</Text>
+                  </Button>
+                )}
               </Center>
             </Box>
-
+            
             <HStack>
               <Image
-                source={require("../assets/Icons/resume.png")}
+                source={require("../assets/Icons/education.png")}
                 alt="Alternate Text"
                 size={6}
               />
+              
               <Text fontSize="md" bold px={2}>
-                Resume
+                Education
               </Text>
             </HStack>
-            <Box borderRadius={3} borderColor="#d4d4d4" borderWidth={1} py={2}>
-              <Center py={6}>
-                <Image
-                  source={require("../assets/Icons/upload.png")}
-                  alt="Alternate Text"
-                  size={4}
-                />
-                Upload CV/Resume
-              </Center>
+            <Box py={3} borderTopColor="#d4d4d4" borderTopWidth={1}>
+            <TextArea
+                placeholder="Level of Education"
+                value={userData.education || ''}
+                onChangeText={handleEducationChange}
+              />
             </Box>
           </VStack>
         </Box>
 
+
         {/* Button */}
         <HStack p={5} space={5}>
-          <Button
-            w="30%"
-            size="xs"
-            variant="subtle"
-            colorScheme="success"
-            onPress={() => navigation.navigate("JobDetail")}
-          >
-            Save
-          </Button>
+        <Button
+          w="30%"
+          size="xs"
+          variant="subtle"
+          colorScheme="success"
+          onPress={confirmUpdate} // Call the update function here
+        >
+          Save
+        </Button>
           <Button
             w="30%"
             size="xs"
