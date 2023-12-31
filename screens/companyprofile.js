@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { ScrollView, View, } from "react-native";
+import { ScrollView, View, Alert} from "react-native";
 import ProfileBox from "../components/profilebox";
 import FormInput from "../components/company_profileforminput";
 import TabsNavigationCompany from "../components/TabsNavigationCompany";
@@ -14,6 +14,9 @@ import {
   VStack,
   Box,
   HStack,
+  Input,
+  Text,
+  Toast,
 } from "native-base";
 
 const CompanyProfile = ({ navigation }) => {
@@ -98,11 +101,10 @@ const CompanyProfile = ({ navigation }) => {
     try {
       const userRef = doc(db, 'users', documentId);
       await updateDoc(userRef, {
-        fullName: userData.fullName,
-        phoneNumber: userData.phoneNumber,
         location: userData.location,
+        aboutCompany: userData.aboutCompany,
+        companyPhoneNumber: userData.companyPhoneNumber,
         companyType: userData.companyType,
-        aboutMe: userData.aboutMe,
       });
       Toast.show({
         title: "Profile updated successfully",
@@ -120,7 +122,7 @@ const CompanyProfile = ({ navigation }) => {
   };
 
   const areFieldsValid = () => {
-    if (!userData.fullName || !userData.dateOfBirth || !userData.email || !userData.phoneNumber || !userData.location) {
+    if (!userData.companyPhoneNumber || !userData.email || !userData.location) {
       alert('Please fill in all required fields.');
       return false;
     }
@@ -155,7 +157,22 @@ const CompanyProfile = ({ navigation }) => {
     }
   };
 
+  const handleLocationChange = (text) => {
+    setUserData({ ...userData, location: text });
+  };
 
+  const handleTypeChange = (text) => {
+    setUserData({ ...userData, companyType: text });
+  };
+
+  const handleAboutCompanyChange = (text) => {
+    setUserData({ ...userData, aboutCompany: text });
+  };
+
+  const handleCompanyPhoneNumberChange = (text) => {
+    setUserData({ ...userData, companyPhoneNumber: text });
+  };
+  
   return (
     <View style={{ flex: 1 }} backgroundColor="white">
       <ScrollView>
@@ -168,13 +185,43 @@ const CompanyProfile = ({ navigation }) => {
         />
 
         <Box paddingTop="4">
-          <VStack space={3}>
-            <FormInput label="Company Name" placeholder="Company Name" />
-            <FormInput label="Location" placeholder="Location" />
-            <FormInput label="Email Address" placeholder="Email Address" />
-            <FormInput label="Phone Number" placeholder="Phone Number" />
-            <FormInput label="Type" placeholder="Company Type" />
-            <FormInput label="About Company" placeholder="About Company" />
+          <VStack space={2} px={3}>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  Full Name
+                </Text>
+              <Input variant="outline" placeholder="Enter a full name" value={userData.fullName} editable={false}/>
+            </VStack>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  Location
+                </Text>
+              <Input variant="outline" placeholder="Enter a full name" value={userData.location} onChangeText={handleLocationChange}/>
+            </VStack>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  Email Address
+                </Text>
+              <Input variant="outline" placeholder="Enter a full name" value={userData.email} editable={false}/>
+            </VStack>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  Phone Number
+                </Text>
+              <Input variant="outline" placeholder="Enter Phone Number" value={userData.companyPhoneNumber} onChangeText={handleCompanyPhoneNumberChange}/>
+            </VStack>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  Type
+                </Text>
+              <Input variant="outline" placeholder="Type of Company" value={userData.companyType} onChangeText={handleTypeChange}/>
+            </VStack>
+            <VStack space={3}>
+                <Text fontSize="md" bold>
+                  About Company
+                </Text>
+              <Input variant="outline" placeholder="About Company" value={userData.aboutCompany} onChangeText={handleAboutCompanyChange}/>
+            </VStack>
           </VStack>
         </Box>
 
