@@ -61,7 +61,7 @@ const AddJobScreen = ({ navigation }) => {
         try {
             const docRef = await addDoc(collection(db, "jobs"), {
                 jobPosition: jobPosition,
-                companyImage: user.companyImage,
+                companyImage: user.profilePicture,
                 companyEmail: user.email,
                 companyName: user.fullName,
                 jobType: jobType,

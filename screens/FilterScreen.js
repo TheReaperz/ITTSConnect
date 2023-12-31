@@ -9,36 +9,23 @@ const FilterScreen = ({ onClose, onApplyFilters, currentFilters }) => {
     const [selectedJobTypes, setSelectedJobTypes] = useState(currentFilters.jobTypes || []);
     const [selectedExperience, setSelectedExperience] = useState(currentFilters.experience || null);
 
-    const handleJobTypeChange = (newSelectedJobTypes) => {
-        setSelectedJobTypes(newSelectedJobTypes);
-    };
-
-    const handleExperienceChange = (newExperience) => {
-        setSelectedExperience(newExperience);
-    };
-
     const clearFilters = () => {
         setSelectedJobTypes([]);
         setSelectedExperience(null);
 
-        // Pass empty filter object back to SearchScreen
         onApplyFilters({ jobTypes: [], experience: null });
 
-        // Close the modal
         onClose();
     };
 
     const handleSubmit = () => {
-        // Construct filter object
         const filters = {
             jobTypes: selectedJobTypes,
             experience: selectedExperience
         };
 
-        // Pass filter object back to SearchScreen
         onApplyFilters(filters);
 
-        // Close the modal
         onClose();
     };
 

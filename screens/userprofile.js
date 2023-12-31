@@ -61,7 +61,7 @@ const UserProfile = ({ navigation }) => {
     setSkills(newSkills);
   };
   const addSkillInput = () => {
-    setSkills([...skills, ""]); // Adds a new empty string to the skills array
+    setSkills([...skills, ""]); 
   };
   
   const deleteSkill = (index) => {
@@ -94,7 +94,7 @@ const UserProfile = ({ navigation }) => {
     });
   
     if (!result.canceled && result.assets) {
-      const uri = result.assets[0].uri; // Access the image URI from the assets array
+      const uri = result.assets[0].uri;
       uploadImageToFirebase(uri);
     }
   };
@@ -128,7 +128,7 @@ const UserProfile = ({ navigation }) => {
     const response = await fetch(uri);
     const blob = await response.blob();
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const storage = getStorage(app); // Use the initialized Firebase app
+    const storage = getStorage(app);
     const storageRef = ref(storage, `assets/userProfile/${filename}`);
   
     try {
@@ -139,8 +139,6 @@ const UserProfile = ({ navigation }) => {
       console.error("Error uploading image to Firebase: ", error);
     }
   };
-
-  
 
   const updateUserProfile = async () => {
     if (!areFieldsValid()) return;
@@ -172,7 +170,6 @@ const UserProfile = ({ navigation }) => {
 
   const areFieldsValid = () => {
     if (!userData.fullName || !userData.dateOfBirth || !userData.email || !userData.phoneNumber || !userData.location) {
-      // You can use an alert or any other method to show the error
       alert('Please fill in all required fields.');
       return false;
     }
