@@ -63,12 +63,7 @@ const HomeUserScreen = ({ navigation }) => {
                     <Heading px={30}>{user.fullName}</Heading>
                 </Container>
                 <Container size="16" flex={1}> 
-                    <Avatar
-                        bg="green.500"
-                        size={90}
-                        borderRadius={100}
-                        source={{uri: userData.profilePicture}}
-                    >
+                    <Avatar bg="green.500" size={90} borderRadius={100} source={{uri: userData.profilePicture}}>
                         AJ
                     </Avatar>
                 </Container>

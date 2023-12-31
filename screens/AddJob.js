@@ -95,23 +95,19 @@ const AddJobScreen = ({ navigation }) => {
                 </Container>
             </HStack>
             <Container>
-                <Text mt={2.5} mx='10' textAlign='center' bold fontSize="md">Job position</Text>
+                <Text mx='10' textAlign='center' bold fontSize="md">Job position</Text>
             </Container>
             <Box  alignItems="center">
-                <Input mx={3} placeholder="Job position" w="300" 
+                <Input mx={3} placeholder="Job position" w="310" 
                 value={jobPosition} 
                 onChangeText={text => setJobPosition(text)}
                 />
             </Box>
-            
-            <VStack space={5}>
 
             <Container>
-                <Text mt={2.5} mx='10' textAlign='center' bold fontSize="md">Job type</Text>
+                <Text mt={5} mx='10' textAlign='center' bold fontSize="md">Job type</Text>
             </Container>
-
                 <Container mx={10}>
-            
                 <Box alignItems="left">
                     <Radio.Group
                         name="jobType"
@@ -126,15 +122,12 @@ const AddJobScreen = ({ navigation }) => {
                         <Radio value="Assistant" my={1} colorScheme="danger">Assistant</Radio>
                     </Radio.Group>
                 </Box>
-
                 </Container>
-            </VStack>
-
             <Container>
                 <Text mt={5} mx='10' textAlign='center' bold fontSize="md">Job location</Text>
             </Container>
             <Box  alignItems="center">
-                <Input mx={3} placeholder="Job location" w="300"
+                <Input mx={3} placeholder="Job location" w="310"
                 value={jobLocation}
                 onChangeText={text => setJobLocation(text)}
                 />
@@ -143,7 +136,8 @@ const AddJobScreen = ({ navigation }) => {
             <Container>
             <Text mt={5} mx='10' textAlign='center' bold fontSize="md">Experience</Text>
             </Container>
-                <Box alignItems="left" marginLeft={10}>
+            <Container mx={7}>
+                <Box alignItems="left">
                     <Radio.Group
                         name="experienceLevel"
                         accessibilityLabel="Experience Level"
@@ -154,8 +148,10 @@ const AddJobScreen = ({ navigation }) => {
                         <Radio value="Fresh Graduate" my={1} colorScheme="danger">Fresh Graduate</Radio>
                         <Radio value="1 Year" my={1} colorScheme="danger">1 Year</Radio>
                         <Radio value="3 Years" my={1} colorScheme="danger">3 Years</Radio>
+                        <Radio value="5 Years" my={1} colorScheme="danger">5 Years</Radio>
                     </Radio.Group>
                 </Box>
+                </Container>
 
                 <Container>
                 <Text mt={5} mx='10' textAlign='center' bold fontSize="md">Requirements</Text>
@@ -164,15 +160,16 @@ const AddJobScreen = ({ navigation }) => {
                 <VStack space={3} mx={3}>
                     {requirements.map((requirement, index) => (
                         <Input 
-                            mx={3}
+                            mx={1}
                             key={index}
                             placeholder={`Requirement ${index + 1}`} 
                             value={requirement}
                             onChangeText={text => handleRequirementChange(text, index)}
+                            w="310"
                         />
                     ))}
                     {requirements.length < 5 && (
-                        <Button marginLeft={3} center maxWidth="320" colorScheme="danger" onPress={addRequirementInput}>
+                        <Button marginLeft={1} center maxWidth="200" colorScheme="danger" onPress={addRequirementInput}>
                             <Text color="white">Add Another Requirement</Text>
                         </Button>
                     )}
@@ -183,7 +180,7 @@ const AddJobScreen = ({ navigation }) => {
                 <Text mt={5} mx='10' textAlign='center' bold fontSize="md">Description</Text>
             </Container>
             <Box  alignItems="center" w="100%">
-            <TextArea h={20} placeholder="Description" w="300" maxW="500"
+            <TextArea h={20} placeholder="Description" w="310" maxW="500"
             value={description}
             onChangeText={text => setDescription(text)}
             />
