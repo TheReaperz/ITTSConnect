@@ -1,12 +1,11 @@
-import { View } from 'react-native';
-import { Heading, Container, HStack, Avatar, Center } from 'native-base';
+import { View, RefreshControl } from 'react-native';
+import { Heading, Container, HStack, Avatar } from 'native-base';
 import TabsNavigation from '../components/TabsNavigation';
 import JobsCard from '../components/JobsCard';
 import { useAuth } from "../context/auth";
-import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where, } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
-
 
 import { ScrollView } from 'react-native';
 
@@ -14,46 +13,54 @@ const HomeUserScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [jobs, setJobs] = useState([]);
     const [userData, setUserData] = useState({user});
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-          try {
+    const fetchUserProfile = async () => {
+        try {
             let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
             const querySnapshot = await getDocs(userQuery);
             if (!querySnapshot.empty) {
-              const docSnapshot = querySnapshot.docs[0]; // Correctly declared inside the try block
-              const fetchedUserData = docSnapshot.data();
-        
-              setUserData(fetchedUserData);
+                const docSnapshot = querySnapshot.docs[0];
+                const fetchedUserData = docSnapshot.data();
+                setUserData(fetchedUserData);
             } else {
-              console.log("User not found");
+                console.log("User not found");
             }
-          } catch (error) {
+        } catch (error) {
             console.error("Error fetching user profile: ", error);
-          }
-        };    
-      
-        if (user && user.id) {
-          fetchUserProfile();
         }
-      }, [user]);
+    };
+
+    const fetchJobs = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "jobs"));
+            const jobsArray = [];
+            querySnapshot.forEach((doc) => {
+                jobsArray.push({ id: doc.id, ...doc.data() });
+            });
+            setJobs(jobsArray);
+        } catch (error) {
+            console.error("Error fetching jobs: ", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "jobs"));
-                const jobsArray = [];
-                querySnapshot.forEach((doc) => {
-                    jobsArray.push({ id: doc.id, ...doc.data() });
-                });
-                setJobs(jobsArray);
-            } catch (error) {
-                console.error("Error fetching jobs: ", error);
-            }
-        };
-
+        if (user && user.id) {
+            fetchUserProfile();
+        }
         fetchJobs();
-    }, []);
+    }, [user]);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await Promise.all([fetchUserProfile(), fetchJobs()]);
+        } catch (error) {
+            console.error("Error refreshing data: ", error);
+        } finally {
+            setRefreshing(false);
+        }
+    }, [user]);
 
     return (
         <View style={{ flex: 1 }}>
@@ -68,10 +75,15 @@ const HomeUserScreen = ({ navigation }) => {
                     </Avatar>
                 </Container>
             </HStack>
-            <ScrollView style={{ flex: 1 }} >
-                    {jobs.map(job => (
-                        <JobsCard key={job.id} job={job} navigation={navigation}/>
-                    ))}
+            <ScrollView
+                style={{ flex: 1 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
+                {jobs.map(job => (
+                    <JobsCard key={job.id} job={job} navigation={navigation}/>
+                ))}
             </ScrollView>
             <TabsNavigation navigation={navigation}/>
         </View>

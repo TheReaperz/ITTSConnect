@@ -1,14 +1,16 @@
 import { View, ScrollView, TouchableOpacity, Alert} from 'react-native';
 import { Heading, Container, HStack, Box, Button, TextArea, Text, Input, Checkbox, VStack, Image, Radio } from 'native-base';
 import TabsNavigationCompany from '../components/TabsNavigationCompany';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/auth';
 
 const AddJobScreen = ({ navigation }) => {
 
     const { user } = useAuth();
+    const [userData, setUserData] = useState({user});
     const [jobPosition, setJobPosition] = useState('');
     const [jobType, setJobType] = useState([]);
     const [jobLocation, setJobLocation] = useState('');
@@ -40,7 +42,29 @@ const AddJobScreen = ({ navigation }) => {
         );
     };
     
-    
+    useFocusEffect(
+        useCallback(() => {
+          const fetchUserProfile = async () => {
+            try {
+              let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
+              const querySnapshot = await getDocs(userQuery);
+              if (!querySnapshot.empty) {
+                const docSnapshot = querySnapshot.docs[0];
+                const fetchedUserData = docSnapshot.data();
+                setUserData(fetchedUserData);
+              } else {
+                console.log("User not found");
+              }
+            } catch (error) {
+              console.error("Error fetching user profile: ", error);
+            }
+          };
+      
+          if (user && user.id) {
+            fetchUserProfile();
+          }
+        }, [user])
+      );
 
     const handleRequirementChange = (text, index) => {
         const newRequirements = [...requirements];
@@ -61,7 +85,7 @@ const AddJobScreen = ({ navigation }) => {
         try {
             const docRef = await addDoc(collection(db, "jobs"), {
                 jobPosition: jobPosition,
-                companyImage: user.profilePicture,
+                companyImage: userData.profilePicture,
                 companyEmail: user.email,
                 companyName: user.fullName,
                 jobType: jobType,

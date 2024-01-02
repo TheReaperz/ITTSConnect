@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { ScrollView, View, Alert} from "react-native";
 import ProfileBox from "../components/profilebox";
-import FormInput from "../components/company_profileforminput";
 import TabsNavigationCompany from "../components/TabsNavigationCompany";
 import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -82,17 +81,31 @@ const CompanyProfile = ({ navigation }) => {
 
   const updateUserProfileImage = async (url) => {
     try {
+      // Update the user profile image
       const userRef = doc(db, 'users', documentId);
       await updateDoc(userRef, {
         profilePicture: url
       });
-      // Update local state
       setUserData({ ...userData, profilePicture: url });
+  
+      // Update the companyImage field in all job documents
+      const jobsQuery = query(
+        collection(db, "jobs"),
+        where("companyEmail", "==", userData.email)
+      );
+      const querySnapshot = await getDocs(jobsQuery);
+      querySnapshot.forEach(async (docSnapshot) => {
+        const jobRef = doc(db, 'jobs', docSnapshot.id);
+        await updateDoc(jobRef, {
+          companyImage: url
+        });
+      });
+  
       alert("Profile image updated successfully");
     } catch (error) {
       console.error("Error updating profile image: ", error);
     }
-  };
+  };  
   
 
   const updateUserProfile = async () => {

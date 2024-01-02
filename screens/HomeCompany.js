@@ -1,6 +1,6 @@
-import { View, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
-import { Heading, Container, HStack, Avatar, Text, Image } from 'native-base';
+import { View, Alert, RefreshControl } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { Heading, Container, HStack, Avatar, Text, } from 'native-base';
 import TabsNavigationCompany from '../components/TabsNavigationCompany';
 import { collection, getDocs, query, where, } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -8,21 +8,23 @@ import { useAuth } from '../context/auth';
 import { ScrollView } from 'react-native';
 import JobsCardCompany from '../components/JobsCardCompany';
 import { doc, deleteDoc } from 'firebase/firestore';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const HomeCompanyScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [jobs, setJobs] = useState([]);
     const [userData, setUserData] = useState({user});
-
-    useEffect(() => {
+      
+    useFocusEffect(
+      useCallback(() => {
         const fetchUserProfile = async () => {
           try {
             let userQuery = query(collection(db, 'users'), where('id', '==', user.id));
             const querySnapshot = await getDocs(userQuery);
             if (!querySnapshot.empty) {
-              const docSnapshot = querySnapshot.docs[0]; // Correctly declared inside the try block
+              const docSnapshot = querySnapshot.docs[0];
               const fetchedUserData = docSnapshot.data();
-        
               setUserData(fetchedUserData);
             } else {
               console.log("User not found");
@@ -30,12 +32,13 @@ const HomeCompanyScreen = ({ navigation }) => {
           } catch (error) {
             console.error("Error fetching user profile: ", error);
           }
-        };    
-      
+        };
+    
         if (user && user.id) {
           fetchUserProfile();
         }
-      }, [user]);
+      }, [user])
+    );
 
       useEffect(() => {
         const fetchJobs = async () => {
@@ -90,6 +93,35 @@ const HomeCompanyScreen = ({ navigation }) => {
         }
       };     
 
+      const [refreshing, setRefreshing] = useState(false);
+      const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+          // Ensure userData is available and has an email
+          if (userData && userData.email) {
+            const jobsQuery = query(
+              collection(db, "jobs"),
+              where("companyEmail", "==", userData.email)
+            );
+      
+            const querySnapshot = await getDocs(jobsQuery);
+            const jobsArray = [];
+            querySnapshot.forEach((doc) => {
+              jobsArray.push({ id: doc.id, ...doc.data() });
+            });
+            setJobs(jobsArray);
+
+
+          }
+        } catch (error) {
+          console.error("Error fetching jobs on refresh: ", error);
+        } finally {
+          setRefreshing(false);
+        }
+      }, [userData]); // Dependency array
+      
+      
+
     return (
         <View style={{ flex: 1 }}>
             <HStack space="2" alignItems="center" pt={3}>
@@ -105,11 +137,16 @@ const HomeCompanyScreen = ({ navigation }) => {
             <Container>
                 <Text mx='10' textAlign='center' bold fontSize="md">Your Active Jobs Listing</Text>
             </Container>
-            <ScrollView style={{ flex: 1 }} >
-                    {jobs.map(job => (
-                        <JobsCardCompany key={job.id} job={job} navigation={navigation} onLongPress={handleLongPress}/>
-                    ))}
-            </ScrollView>
+            <ScrollView
+                style={{ flex: 1 }}
+                refreshControl={
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+              >
+                {jobs.map(job => (
+                  <JobsCardCompany key={job.id} job={job} navigation={navigation} onLongPress={handleLongPress}/>
+                ))}
+          </ScrollView>
             <TabsNavigationCompany navigation={navigation}/>
         </View>
     );
