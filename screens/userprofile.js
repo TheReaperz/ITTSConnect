@@ -118,15 +118,31 @@ const UserProfile = ({ navigation }) => {
 
   const updateUserProfileImage = async (url) => {
     try {
-      const userRef = doc(db, 'users', documentId); 
+      // Update the user profile image
+      const userRef = doc(db, 'users', documentId);
       await updateDoc(userRef, {
         profilePicture: url
       });
+      setUserData({ ...userData, profilePicture: url });
+  
+      // Update the companyImage field in all job documents
+      const jobsQuery = query(
+        collection(db, "jobs"),
+        where("companyEmail", "==", userData.email)
+      );
+      const querySnapshot = await getDocs(jobsQuery);
+      querySnapshot.forEach(async (docSnapshot) => {
+        const jobRef = doc(db, 'jobs', docSnapshot.id);
+        await updateDoc(jobRef, {
+          companyImage: url
+        });
+      });
+  
       alert("Profile image updated successfully");
     } catch (error) {
       console.error("Error updating profile image: ", error);
     }
-  };
+  }; 
   
   const uploadImageToFirebase = async (uri) => {
     const response = await fetch(uri);
